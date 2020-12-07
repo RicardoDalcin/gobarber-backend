@@ -1,41 +1,39 @@
-import AppError from '@shared/errors/AppError';
-
 import FakeAppointmentsRepository from '../repositories/fakes/FakeAppointmentsRepository';
 import ListProviderDayAvailabilityService from './ListProviderDayAvailabilityService';
 
-let listProviderMonthAvailability: ListProviderDayAvailabilityService;
 let fakeAppointmentsRepository: FakeAppointmentsRepository;
+let listProviderDayAvailability: ListProviderDayAvailabilityService;
 
-describe('ListProvidersMonthAvailability', () => {
+describe('ListProviderDayAvailability', () => {
   beforeEach(() => {
     fakeAppointmentsRepository = new FakeAppointmentsRepository();
-    listProviderMonthAvailability = new ListProviderDayAvailabilityService(
+    listProviderDayAvailability = new ListProviderDayAvailabilityService(
       fakeAppointmentsRepository,
     );
   });
 
-  it('should be able to list day availability of provider', async () => {
-    jest.spyOn(Date, 'now').mockImplementationOnce(() => {
-      return new Date(2020, 11, 4, 11).getTime();
-    });
-
-    const app1 = await fakeAppointmentsRepository.create({
-      provider_id: 'provider_id',
-      user_id: 'user_id',
-      date: new Date(2020, 11, 4, 14, 0, 0),
-    });
-
-    const app2 = await fakeAppointmentsRepository.create({
-      provider_id: 'provider_id',
-      user_id: 'user_id',
-      date: new Date(2020, 11, 4, 15, 0, 0),
-    });
-
-    const availability = await listProviderMonthAvailability.execute({
+  it('should be able to list day availability of a provider', async () => {
+    await fakeAppointmentsRepository.create({
       provider_id: 'user',
-      day: 4,
+      user_id: 'user',
+      date: new Date(2020, 4, 20, 14, 0, 0),
+    });
+
+    await fakeAppointmentsRepository.create({
+      provider_id: 'user',
+      user_id: 'user',
+      date: new Date(2020, 4, 20, 15, 0, 0),
+    });
+
+    jest.spyOn(Date, 'now').mockImplementationOnce(() => {
+      return new Date(2020, 4, 20, 11).getTime();
+    });
+
+    const availability = await listProviderDayAvailability.execute({
+      provider_id: 'user',
       year: 2020,
-      month: 12,
+      month: 5,
+      day: 20,
     });
 
     expect(availability).toEqual(
